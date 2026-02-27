@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - Kremer-dev
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up environment
+        run: echo "Add your build/test setup steps here"
+
+      # TODO: Add language-specific steps once tech stack is decided
+      # Examples:
+      #
+      # Node.js:
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '20'
+      # - run: npm ci
+      # - run: npm test
+      #
+      # Python:
+      # - uses: actions/setup-python@v5
+      #   with:
+      #     python-version: '3.12'
+      # - run: pip install -r requirements.txt
+      # - run: pytest
+      #
+      # .NET:
+      # - uses: actions/setup-dotnet@v4
+      #   with:
+      #     dotnet-version: '8.x'
+      # - run: dotnet build
+      # - run: dotnet test
