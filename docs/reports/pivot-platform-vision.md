@@ -1,11 +1,14 @@
-# Pivot Platform — Product Vision
+# Meridian — Product Vision
 ## Unified Clinical Trial Intelligence Platform
+### *by Pivot*
 
 **Document Type:** Product Vision
 **Prepared by:** Pivot
 **Date:** 2026-04-02
 **Status:** Internal — Strategic Planning
-**Codename:** TBD *(suggested names at end of document)*
+**Platform Name:** Meridian
+
+> **Why Meridian:** A meridian is the reference line from which all position is measured — the point of precision that tells you exactly where you are. Meridian does the same for clinical trials: it tells you exactly where every patient is in their journey, where every dollar is in its lifecycle, and where your next best candidate is hiding in your data. Navigation. Precision. Clarity.
 
 ---
 
@@ -443,17 +446,9 @@ Open the platform to other SMOs. Self-service onboarding. Subscription pricing. 
 
 ---
 
-## Platform Name — Options
+## Platform Name
 
-| Name | Meaning | Domain likely available? |
-|---|---|---|
-| **Meridian** | Navigation reference point — finding the exact position of a patient in their clinical journey | Likely |
-| **Helix** | DNA double helix — clinical/life sciences reference | Unlikely (taken) |
-| **Nexus** | Connection point — where all data sources connect | Unlikely |
-| **Canopy** | Protection and coverage — covering the full trial journey | Possible |
-| **Cadence** | Rhythm — the rhythm of clinical visits, payments, and protocols | Possible |
-| **Lumen** | Unit of light — illuminating the patient journey | Possible |
-| **Stratum** | Layers — the layered platform architecture | Possible |
+**Meridian** — the reference line from which all position is measured. In clinical trials: where every patient is in their journey, where every dollar is in its lifecycle, where the next best candidate is in your data. Navigation. Precision. Clarity.
 
 ---
 
