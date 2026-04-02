@@ -1,7 +1,7 @@
 # MASTER TODO — Pivot
 
-**Last Updated:** 2026-02-27
-**Overall Completion:** 5% (infrastructure only)
+**Last Updated:** 2026-04-02
+**Overall Completion:** 20% (infrastructure + Solimed discovery complete; engagement pending commercial close)
 
 ---
 
@@ -10,9 +10,12 @@
 | Phase | Status | Completion |
 |-------|--------|-----------|
 | Phase 0: Infrastructure | ✅ Complete | 100% |
-| Phase 1: [TBD] | ⏳ Not Started | 0% |
-| Phase 2: [TBD] | ⏳ Not Started | 0% |
-| Phase 3: [TBD] | ⏳ Not Started | 0% |
+| Solimed: Discovery & Planning | ✅ Complete | 100% |
+| Solimed: Commercial Close | ⏳ In Progress | 20% |
+| Solimed: Sprint 1 | ⏳ Blocked (pre-requisites) | 0% |
+| Meridian: Platform Vision | ✅ Complete | 100% |
+| Meridian: Phase 0 (Team Setup) | ⏳ Not Started | 0% |
+| Meridian: Phase 1 (Solimed Build) | ⏳ Not Started | 0% |
 
 ---
 
@@ -31,39 +34,103 @@
 
 ---
 
-## Phase 1: [Define Project Scope] ⏳
+## Solimed Engagement ⏳
 
-> **TODO:** Define what Pivot is and break it into tasks
+### Discovery & Planning ✅ Complete
+- [x] Analyze demo recording (85-minute MP4 transcribed via Whisper)
+- [x] Document as-is process maps (8 flowcharts, 20 confirmed gaps)
+- [x] Create enhancement roadmap (5 phases, 20 months)
+- [x] Create PM plan (Phase 1 fully sprinted, all phases structured)
+- [x] Create client proposal (€476K–€595K, 5 phases)
+- [x] Create CTO technology assessment (6 dimensions, stack recommendation)
+- [x] Create CTO draft gap analysis (vs Eric Garrison/WTE Solutions draft)
+- [x] Create CFO revenue intelligence document (tailored to Drew Domescik)
+- [x] Create project charter (Phase 1 authorization)
+- [x] Create readiness assessment (CONDITIONALLY READY — 7 blockers identified)
 
-- [ ] Define project purpose and goals
-- [ ] Document tech stack decision
-- [ ] Create architecture document
-- [ ] Set up development environment
-- [ ] Define data model
+### Commercial Close ⏳ In Progress
+- [ ] NDA signed by both parties
+- [ ] Phase 1 budget verbally confirmed by Ivan Kruljac
+- [ ] Phase 1 SOW drafted and sent
+- [ ] WTE Solutions / Eric Garrison engagement status clarified
+- [ ] Contract signed
+
+### Pre-Sprint 1 Prerequisites ⏳ Blocked on Commercial
+- [ ] Mladen Geng 2 days/week formally confirmed
+- [ ] Power Apps access provisioned
+- [ ] Power BI workspace access provisioned
+- [ ] Dataverse read access provisioned
+- [ ] Azure subscription confirmed
+- [ ] 2–3 coordinator names for UAT confirmed
+- [ ] Finance role owner identified
+
+### Sprint 1 (Discovery & Foundation) ⏳ Not Started
+- [ ] Power Apps staging environment created
+- [ ] Daily backup confirmed
+- [ ] Full data audit completed
+- [ ] All Dataverse tables documented
+- [ ] Business logic extracted from Mladen
+- [ ] Sprint review and UAT process agreed
+
+### Phase 1 Features (Sprints 2–6) ⏳ Not Started
+- [ ] Working hours flag + fee recalculation
+- [ ] Multi-arm study arm assignment + backlog correction
+- [ ] Screen fail allotment tracking
+- [ ] Automated investigator spec generation
+- [ ] Coordinator to-do dashboard + visit tolerance warnings
+- [ ] Bulk visit status operations
+- [ ] Study progress summary cards
+- [ ] Site budget fix, override, lock/unlock
+- [ ] Demand and time tracking with normita baseline
+- [ ] Study show/stop lifecycle controls
+- [ ] Overall budget/revenue/normita Power BI dashboard
+- [ ] Revenue status ladder + cash flow forecast dashboards
+- [ ] Backlog quality score dashboard
 
 ---
 
-## Phase 2: [Core Development] ⏳
+## Meridian Platform ⏳
 
-> **TODO:** Populate after Phase 1 is defined
+### Vision & Planning ✅ Complete
+- [x] Define platform concept (Crio + Dialpad + AI/predictive merged)
+- [x] Name the platform: Meridian
+- [x] Write full platform vision document
+- [x] Write 24-month PM plan for building Meridian
+- [x] Identify Solimed as design partner
 
-- [ ] [Task TBD]
+### Phase 0: Foundation (Weeks 1–4) ⏳ Not Started
+- [ ] Assemble core team (Product Lead, Tech Lead, BI Engineer)
+- [ ] Finalize technology stack (API: Node.js Fastify vs Python FastAPI)
+- [ ] Write Architecture Decision Records (ADRs)
+- [ ] Design multi-tenant data model
+- [ ] Provision dev/staging/production Azure environments
+- [ ] Set up CI/CD pipeline
 
----
+### Phase 1: Solimed Build (Months 1–9) ⏳ Not Started
+- [ ] Layer 1: Data Ingestion
+- [ ] Layer 2: Payment Intelligence
+- [ ] Layer 3: Clinical Operations
+- [ ] Layer 4: Communication
+- [ ] Layer 5: AI Intelligence
 
-## Phase 3: [Launch / Delivery] ⏳
+### Phase 2: Second Site (Months 10–15) ⏳ Not Started
+- [ ] Multi-tenant hardening
+- [ ] EHR/FHIR R4 integration
+- [ ] AI model training on multi-site data
 
-> **TODO:** Populate after core development scope is defined
-
-- [ ] [Task TBD]
+### Phase 3: Market Launch (Months 16–24) ⏳ Not Started
+- [ ] Self-service onboarding
+- [ ] Subscription billing (Stripe)
+- [ ] 5+ sites live
 
 ---
 
 ## Backlog
 
-- [ ] Define project description in README.md
-- [ ] Choose and document tech stack
-- [ ] Set up CI/CD pipeline
+- [ ] README.md — write project description
+- [ ] Architecture document for Meridian in `docs/architecture/`
+- [ ] Tech stack decision documented (FastAPI vs Fastify ADR)
+- [ ] Set up development environment for Meridian build
 
 ---
 
@@ -71,6 +138,8 @@
 
 | Date | Item |
 |------|------|
+| 2026-04-02 | Full Solimed discovery — 10 deliverables (MD + DOCX each) |
+| 2026-04-02 | Meridian platform named and vision + PM plan written |
 | 2026-02-27 | Project infrastructure and folder structure created |
 | 2026-02-27 | Git initialized, remote configured, branches set up |
 
@@ -78,11 +147,11 @@
 
 ## Notes
 
-- Project was initialized 2026-02-27
-- Default branch: `main`
+- Solimed is the first client engagement AND the Meridian design partner
+- All deliverables in `docs/reports/` — both `.md` and `.docx` versions exist
 - Active development branch: `Kremer-dev`
-- All development work happens on `Kremer-dev` before PR to `main`
+- Protected: `main` — PRs only
 
 ---
 
-**Next Review:** Next development session
+**Next Review:** Before Solimed commercial close meeting
