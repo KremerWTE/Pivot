@@ -197,6 +197,169 @@ Pivot has been engaged to enhance Solimed's Study Tracking application and archi
 
 ---
 
+## 4a. Power BI Screen Development Plan
+
+Power BI is the reporting backbone of Solimed's platform and must be treated as a first-class deliverable alongside the Power Apps work. This section details every Power BI screen to be built or enhanced, which sprint it lands in, and what data it requires.
+
+### Current Power BI Screens (existing — enhance only)
+
+| Screen | Current State | Issues to Fix |
+|---|---|---|
+| **P&L Dashboard** | Revenue by CRO/study; fixed vs. visit revenue; costs; margin ratios | No site filter; screen fail revenue not separated; no cash flow forecast |
+| **Investigator Specification** | Monthly fee breakdown per investigator per visit/patient | Manual export only; no auto-send; no after-hours rate differentiation |
+| **Coordinator Utilization** | Hours tracked per coordinator; visit vs. admin breakdown; hours per visit | Time tracking is Excel-fed (fragile); no normita comparison; no demand forecast |
+| **Backlog / Forecast** | Cumulative scheduled visit budget by year | No site filter; multi-arm inflation; no patient-level drill-down |
+| **Calendar View** | Coordinator visit calendar (already in Power BI, not app) | No filter by site; no urgency/tolerance colour coding |
+
+---
+
+### New Power BI Screens — Build Schedule
+
+#### Sprint 6 (Phase 1 — Months 2–3)
+
+**Screen 1: Enhanced P&L Dashboard (replace existing)**
+- **Purpose:** Unified financial overview for Solimed finance and leadership
+- **New elements:**
+  - Site filter (Solimed Clinic / Medico RI / All) — Ivan noted live during demo this was missing
+  - Screen fail revenue split: billable screen fails vs. over-allotment (non-billable) as separate revenue lines
+  - Cash flow timeline: month-by-month expected revenue from scheduled visits, rolling 12 months
+  - After-hours visit revenue flag: show revenue from after-hours visits separately (feeds from working hours flag)
+  - Fixed revenue status tracker: startup/archiving/pharmacy fees — planned vs. invoiced vs. received
+- **Data sources:** Visit logs, site study budget config, screen fail allotment table, working hours flag (new)
+- **Audience:** Solimed finance team, Ivan, Drew
+
+**Screen 2: Backlog Dashboard v2 (replace existing)**
+- **Purpose:** Accurate revenue forecast that Solimed leadership can rely on for business planning
+- **New elements:**
+  - Site filter (the fix Ivan said he'd do "after the call")
+  - Arm-aware backlog: only counts the patient's assigned arm (resolves multi-arm inflation)
+  - Patient-level drill-down: study → site study → patient → individual scheduled visits with expected revenue
+  - Year/quarter/month toggle
+  - Comparison: current year backlog vs. prior year at same point (growth indicator)
+  - "Unresolved arms" alert: count of patients with branching protocols who don't yet have an arm assigned
+- **Data sources:** Visit schedule, patient arm assignment (new), study protocol arms (new)
+- **Audience:** Ivan, Drew, Solimed management
+
+**Screen 3: Normita & Time Dashboard (new)**
+- **Purpose:** Give coordinators and management visibility into visit time expectations vs. actuals
+- **Elements:**
+  - Normita per visit type: derived expected duration (from investigator budget ÷ €/hr rate)
+  - Actual hours logged vs. normita: per visit type, per study, per coordinator
+  - Efficiency trend: hours/visit over time per study (Ivan's observation: coordinators get faster as a trial matures)
+  - Visit complexity distribution: Simple / Standard / Complex breakdown across active studies
+  - Outlier flag: visits where actual hours > 2× normita
+- **Data sources:** Coordinator time tracking (Excel → migrated to app in Phase 2), normita config table (new), visit logs
+- **Audience:** Site manager, lead coordinator, Mladen for operational review
+
+**Screen 4: Investigator Specification v2 (enhance existing)**
+- **Purpose:** Replace the manual export/email process with a reviewed-then-auto-send workflow
+- **New elements:**
+  - After-hours rate differentiation: in-hours fee vs. after-hours fee shown separately per visit
+  - PI cut vs. PI fee breakdown: clearly labelled (addresses the distinction Ivan explained)
+  - Sub-investigator and referral doctor split visible
+  - Month selector with "ready to send" / "pending review" / "sent" status indicator
+  - One-click "approve & send" button for finance (triggers automated email)
+  - Discrepancy log: investigator replies flagging errors tracked here
+- **Data sources:** Visit logs, investigator fee config, working hours flag, PI cut/fee config
+- **Audience:** Solimed finance role
+
+---
+
+#### Sprint 13–14 (Phase 3 — International Expansion)
+
+**Screen 5: Multi-Country P&L (new)**
+- **Purpose:** Consolidated financial view across all countries, with per-country drill-down
+- **Elements:**
+  - Country selector (filter or matrix rows)
+  - Local currency column + base currency (€) column for each metric
+  - FX rate used and date shown per row
+  - Country-level margin comparison: which countries are most profitable
+  - Country-level backlog: same as Screen 2 but aggregated globally with country breakdown
+- **Data sources:** Multi-country visit logs, FX rate table (new), country config table
+- **Audience:** Solimed global leadership
+
+**Screen 6: Country Compliance & Regulatory Status (new)**
+- **Purpose:** Track compliance posture per country — key for audit and regulatory reviews
+- **Elements:**
+  - Per-country: data residency status, GDPR/local law compliance flag, pending regulatory actions
+  - Per-study: ethics approval expiry date, insurance certificate expiry, open protocol amendments
+  - Screen fail allotment utilization per country (regulatory threshold monitoring)
+  - Expiring documents alert: documents expiring within 30/60/90 days
+- **Data sources:** Document management system (Phase 4), country config, study regulatory fields
+- **Audience:** Solimed compliance officer, country admins
+
+---
+
+#### Sprint 21–22 (Phase 4 — Ecosystem Integration)
+
+**Screen 7: EDC Sync Status Dashboard (new)**
+- **Purpose:** Monitor the health of the EDC bidirectional sync once integration is live
+- **Elements:**
+  - Sync status per study per EDC system: last sync time, records synced, errors
+  - Visit status discrepancies: visits marked Done in EDC but not in Solimed (or vice versa)
+  - Error log with drill-down to individual failed sync records
+  - Data quality score per study
+- **Data sources:** EDC integration sync log (new)
+- **Audience:** Pivot DevOps / Solimed technical admin
+
+**Screen 8: Automated Invoicing Tracker (new)**
+- **Purpose:** Track the invoicing pipeline from approved visit to payment received
+- **Elements:**
+  - Invoice pipeline: Approved → Invoice Generated → Invoice Sent → Payment Pending → Paid
+  - Days-outstanding per invoice (CRO payment terms tracking)
+  - Overdue invoices alert (past payment terms)
+  - Revenue recognised vs. revenue invoiced vs. cash received (three-line waterfall)
+  - Per-CRO payment performance: which CROs pay on time
+- **Data sources:** Visit approval logs, invoice records (new), payment receipts (new)
+- **Audience:** Solimed finance team, Ivan
+
+---
+
+#### Sprint 36–37 (Phase 5 — AI Features)
+
+**Screen 9: Predictive Insights Dashboard (new)**
+- **Purpose:** Forward-looking operational intelligence
+- **Elements:**
+  - Visit no-show risk score per patient (ML model output): High / Medium / Low with contributing factors
+  - Budget overrun early warning: studies where spend trajectory exceeds contracted budget (30/60/90 day horizon)
+  - Coordinator capacity forecast: projected hours required vs. available for next 8 weeks
+  - Recruitment pace tracker: actual enrollment vs. target pace; projected enrollment completion date
+- **Data sources:** Historical visit data, ML inference API (new), coordinator capacity config
+- **Audience:** Site manager, Ivan, Drew
+
+---
+
+### Power BI Development Standards
+
+All Power BI screens must conform to these standards:
+
+| Standard | Requirement |
+|---|---|
+| **Colour scheme** | Solimed brand colours; consistent across all screens |
+| **Date filters** | Every screen has a date range filter; default = current year |
+| **Site filter** | Every screen has a site filter; default = all sites user has access to |
+| **Export** | Every screen has Export to Excel and Export to PDF buttons |
+| **Mobile layout** | Every screen has a mobile layout defined (Power BI mobile view) |
+| **Refresh frequency** | Operational screens (utilization, backlog): daily refresh minimum; financial screens: on-demand + nightly |
+| **Data freshness indicator** | Every screen shows "Last updated: [timestamp]" |
+| **Row-level security** | Each screen enforces RBAC — coordinators see only their studies; country admins see only their country |
+| **Accessibility** | Colour-blind safe palette; all charts have text labels; screen reader compatible |
+
+---
+
+### Power BI Resourcing
+
+A dedicated **Data / BI Engineer** is required from Phase 1 Sprint 6 onwards. This role owns:
+- Power BI data model design and maintenance
+- DAX measure library (shared calculations used across screens)
+- Power Query / data pipeline from source to Power BI dataset
+- Row-level security implementation
+- Report publishing and workspace management
+- Transition from Excel time tracking to app data source (Phase 2)
+- Power BI Embedded implementation (Phase 4)
+
+---
+
 ## 5. Resourcing Plan
 
 ### 5.1 Pivot Team
