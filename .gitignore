@@ -154,6 +154,16 @@ data/*.json
 *.tgz
 
 # -------------------------
+# Media & Transcription (large files)
+# -------------------------
+*.mp4
+*.wav
+*.mp3
+solmed_audio.*
+solmed_transcript.*
+solmed_screenshots/
+
+# -------------------------
 # Docker
 # -------------------------
 .docker/
