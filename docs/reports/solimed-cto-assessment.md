@@ -344,3 +344,225 @@ Several components should be evaluated as buy vs. build:
 ---
 
 *This assessment is based on the January 23, 2026 demo recording. A technical discovery session with Mladen Geng to review the actual Power Apps configuration, data model, and Power BI data model is required to validate these findings before Phase 2 architecture begins.*
+
+---
+
+## 9. Scaling Capability Recommendations
+
+Scaling Solimed's platform operates across four dimensions simultaneously: **functional capabilities** (what the app can do), **technical capacity** (how many users/sites/studies it can handle), **operational capabilities** (how the team runs the platform), and **geographic capabilities** (how it expands to new countries). Each dimension has its own scaling path and its own failure modes if neglected.
+
+---
+
+### 9.1 Functional Capability Scaling
+
+These are the features that must grow with the business. They are ordered by the dependency chain — later items require earlier items to be in place.
+
+#### Tier 1 — Immediate (Months 1–3): Fix What's Broken at Current Scale
+The platform already has functional gaps that create operational risk at its current 2-site, 321-patient scale. These must be resolved before adding any new capability.
+
+| Capability | Current Gap | Scaling Recommendation |
+|---|---|---|
+| **Fee calculation accuracy** | After-hours visits pay wrong investigator rate | Add working hours flag; drive fee engine from API (Phase 2) so calculation is tested and auditable |
+| **Financial forecast integrity** | Multi-arm studies inflate backlog by summing all arms | Arm-assignment per patient at randomization; backlog recalculates from assigned arm only |
+| **Revenue recognition controls** | Screen fail allotments not tracked; gastroenterology risk unmanaged | Screen fail counter per study per contract; billable vs. over-allotment split in PNL |
+| **Investigator transparency** | Manual monthly spec export and email | Automate: generate spec from approved visits → email each investigator on schedule |
+| **Time normatives** | No visit duration baseline exists | Derive normita from visit budget (investigator + procedure budget ÷ configured €/hr rate); expose in coordinator view and Power BI |
+
+#### Tier 2 — Foundation (Months 3–5): Enable the Next Order of Magnitude
+These capabilities do not exist today and are required before the platform can handle 10x the current volume or a second country.
+
+| Capability | Why It's a Scaling Blocker | Recommendation |
+|---|---|---|
+| **API layer** | Without it, no integration, no mobile, no external access, no proper business logic versioning | Build REST API (Node.js/FastAPI) exposing all core entities; migrate fee calculation logic out of Power Apps formulas into tested API functions |
+| **Role-based access control (RBAC)** | Current binary admin/non-admin model cannot support multi-site, multi-country data isolation | Implement 6-tier role model: Platform Admin → Country Admin → Site Admin → Coordinator → Investigator → Read-Only; enforce at API layer |
+| **Multi-tenant data model** | All sites share a single data namespace; a second country requires either a full schema redesign or separate environments | Introduce `tenant_id` / `country_id` / `site_id` columns throughout; enforce row-level security at API and database layer |
+| **PII audit logging** | No record of who accessed patient data — GDPR violation in most expansion markets | Every patient data read/write logged: user, timestamp, action, record; retained per regulatory requirements of each country |
+| **Procedure-level visit itemization** | Unscheduled/partial visits cannot be itemized; CROs want to pay only for what happened | Add procedure sub-items on visits; each procedure has its own budget, completion flag, and billing status; resolves Drew's concern about unscheduled visit billing |
+
+#### Tier 3 — Growth (Months 6–14): Enable Multi-Country and Ecosystem Integration
+Once the foundation is solid, these capabilities unlock the next revenue tier.
+
+| Capability | Scaling Value | Recommendation |
+|---|---|---|
+| **Multi-currency engine** | Required for every non-Croatia site | Per-site currency config; live FX rates (ECB API); historical rate preservation for accurate historical reporting; all Power BI dashboards show local + base currency |
+| **EDC bidirectional sync** | Eliminates double-entry burden that grows linearly with study count | Build thin adapter per EDC system (Medidata, Veeva, REDCap); sync visit status bidirectionally; do not replicate clinical data — only operational/financial status |
+| **Automated invoicing** | Billing is currently manual; at 5 countries it is unmanageable | Invoice auto-generated when visit reaches Approved; PDF created; delivered to CRO with line-item breakdown; status tracked through to payment receipt |
+| **Mobile app (investigator-facing)** | Field investigators cannot log visits offline; a blocker for rural/hospital sites in new markets | React Native app: view schedule, check in/out of visit, log visit offline, sync when connected; push notifications for upcoming visits |
+| **Document management** | Protocol amendments, consent forms, ethics approvals managed via email/paper | Version-controlled document store per study; expiry tracking for ethics/insurance; e-signature for coordinator/investigator acknowledgment of amendments |
+| **Amendment workflow** | Currently handled by "effective from" date — no formal workflow | Structured amendment process: CRO submits amendment → Solimed reviews → approves → system applies effective-from date changes across all affected visits/budgets; full audit trail |
+
+#### Tier 4 — Scale (Months 15–20): Platform-Level Capabilities
+These are capabilities that transform Solimed from an operational tool into a platform.
+
+| Capability | Strategic Value | Recommendation |
+|---|---|---|
+| **Self-service site onboarding** | Manual onboarding cannot scale past 10 sites | Guided wizard: site details → CRO mapping → protocol setup → user provisioning → first study — no Solimed staff intervention required |
+| **CRO portal** | CROs currently receive data via email/spec exports | CRO-facing read-only view of their studies across all Solimed sites; live visit status, backlog, payment specs; replaces email reporting entirely |
+| **AI-driven visit scheduling optimization** | Coordinator time is the most constrained resource | ML model trained on historical visit data: recommend optimal visit scheduling to minimize coordinator hours while respecting tolerance windows; flag high-risk patients likely to miss visits |
+| **Predictive budget overrun detection** | Studies go over budget silently | Early warning model: flag studies where actual spend trajectory will exceed contracted budget before it happens; give coordinator and finance 30+ days to intervene |
+| **Regulatory intelligence feed** | Country-specific rules change; currently no monitoring | Subscribe to regulatory update service per country; surface alerts when a change affects active studies; map change to affected visit types, budget items, or required fields |
+
+---
+
+### 9.2 Technical Capacity Scaling
+
+These are the infrastructure and architecture decisions that determine how many users, sites, studies, and countries the platform can support before it breaks.
+
+#### Current Capacity Ceiling (estimated)
+| Dimension | Current | Estimated Power Apps Ceiling | Required for 10-Country Target |
+|---|---|---|---|
+| Active patients | 321 | ~2,000–3,000 (before gallery performance degrades) | 50,000+ |
+| Concurrent users | ~10–20 | ~50 (Power Apps shared capacity) | 500+ |
+| Sites | 2 | ~10 (before multi-env management becomes unmanageable) | 100+ |
+| Countries | 1 | 1 (no localization, no data residency) | 10+ |
+| Studies | Hundreds | ~1,000 (manageable) | 10,000+ |
+| Report refresh latency | Minutes (scheduled) | Minutes (acceptable now) | Near real-time for operational dashboards |
+
+#### Scaling Path by Phase
+
+**Phase 1 (current Power Apps):**
+- Optimize gallery delegation to push filtering server-side (reduces data loaded client-side)
+- Add Power Apps staging environment to reduce risk of production incidents
+- No architectural changes — capacity ceiling stays the same
+
+**Phase 2 (API layer introduced):**
+- API layer (Azure App Service) scales horizontally — add instances behind a load balancer as load increases
+- Azure SQL scales vertically (upgrade tier) and horizontally (read replicas for Power BI data model)
+- Estimated new ceiling: **10,000+ active patients, 100+ concurrent users, 20+ sites**
+- Power Apps still the UI but reads/writes through the API — offloads business logic from client
+
+**Phase 3 (multi-tenant, multi-region):**
+- Per-country Azure resource groups — each country's data in the correct Azure region
+- Azure Traffic Manager routes users to nearest region — reduces latency for international coordinators
+- Database: single schema, row-level security per tenant; optionally shard by country at high volume
+- Estimated new ceiling: **unlimited sites, 50+ countries, 1,000+ concurrent users**
+
+**Phase 4 (Next.js front-end):**
+- Next.js deployed to Azure Static Web Apps (global CDN) — sub-second page loads worldwide
+- React Native mobile adds offline capacity — coordinators and investigators work without connectivity
+- Power BI Embedded replaces per-user Power BI Pro licenses — significant cost reduction at scale
+- Estimated cost reduction: from ~€25/user/month (Power Apps premium) to ~€3–5/user/month equivalent
+
+**Phase 5 (platform scale):**
+- Azure Kubernetes Service (AKS) for API layer — auto-scales to demand; zero-downtime deployments
+- Azure Service Bus for async processing — visit approval events → invoice generation → notifications all handled asynchronously, no UI latency
+- Azure Cognitive Search for cross-study, cross-country search at full dataset scale
+- Target: **99.9% uptime SLA, <500ms API response p95, <2s page load globally**
+
+---
+
+### 9.3 Operational Capability Scaling
+
+The technology scaling is only half the picture. The team and processes running the platform must scale in parallel or the technical investment is wasted.
+
+#### Development Team Scaling
+
+| Phase | Team Size | Key Additions |
+|---|---|---|
+| Phase 1 | 3–4 people | Power Apps dev, Power BI dev, QA, PM |
+| Phase 2 | 5–6 people | Add backend API developer; retain Power Apps dev through transition |
+| Phase 3 | 6–8 people | Add second full-stack dev; add DevOps/infrastructure engineer |
+| Phase 4 | 8–10 people | Add mobile developer; UX designer full-time; data engineer |
+| Phase 5 | 10–14 people | Add ML engineer; second mobile dev; security engineer; support engineer |
+
+#### Process Maturity Scaling
+
+| Process | Current State | Phase 2 Target | Phase 5 Target |
+|---|---|---|---|
+| Testing | None | Unit tests on all API business logic (>80% coverage); regression suite | Full test pyramid: unit, integration, E2E; automated performance tests |
+| Deployment | Direct to production | Staging → UAT → Production pipeline with approvals | Blue/green deployments; feature flags; automated rollback |
+| Monitoring | None | Azure Monitor: API uptime, error rates, response times | Full observability: distributed tracing, custom business metrics, SLO dashboards |
+| Incident response | None | On-call rotation; runbook per alert type | SLA-driven incident management; post-mortem culture |
+| Security | Azure AD only | Pen test before Phase 3; RBAC enforced; PII audit logs | Annual pen test; SOC 2 Type II target for enterprise CRO clients |
+| Documentation | None (in Mladen's head) | API docs (OpenAPI); data model ERD; runbooks | Full developer portal; architecture decision records (ADRs) |
+
+#### Support Model Scaling
+
+| Scale | Support Model |
+|---|---|
+| 1–2 sites (today) | Mladen handles everything; informal |
+| 3–10 sites (Phase 3) | Dedicated support inbox; documented escalation path; SLA: respond in 4 business hours |
+| 10–50 sites (Phase 4) | Tiered support: L1 (self-service knowledge base), L2 (support engineer), L3 (dev escalation); SLA: P1 = 1hr, P2 = 4hr, P3 = 24hr |
+| 50+ sites (Phase 5) | In-app support chat; customer success manager per country; automated monitoring catches issues before users report them |
+
+---
+
+### 9.4 Geographic Capability Scaling
+
+This is the dimension most specific to Solimed's expansion ambition — scaling from 1 country to many.
+
+#### Country Readiness Framework
+
+Before launching in any new country, the following must be true:
+
+| Gate | Check | Owner |
+|---|---|---|
+| **Regulatory** | Local clinical trial site regulations reviewed; required data fields identified; data residency requirement confirmed | Solimed Legal + Pivot |
+| **Technical** | Azure region available in/near country; data residency config deployed; per-country tax/billing rules configured | Pivot DevOps |
+| **Compliance** | RBAC enforced; PII audit logging active; GDPR or local equivalent data processing agreement in place | Pivot Security + Solimed Legal |
+| **Localization** | UI language available; date/number/currency formats correct; required field labels in local language | Pivot Dev |
+| **Financial** | Currency configured; FX rate integration active; invoicing format meets local requirements | Pivot Dev + Solimed Finance |
+| **Operational** | Site admin user provisioned; coordinators trained; support escalation path defined for local time zone | Solimed Ops + Pivot PM |
+| **Go-live** | Pilot study identified; test run complete on staging; hypercare plan in place for first 30 days | Pivot PM + Solimed |
+
+#### Country Complexity Tiers
+
+Not all countries are equally complex to enter. Classify target countries before committing:
+
+| Tier | Description | Examples | Estimated Onboarding Time |
+|---|---|---|---|
+| **Tier 1 — Low complexity** | EU member state; GDPR already handled by base platform; Euro currency; English secondary language | Slovenia, Austria, Czech Republic | 2–4 weeks |
+| **Tier 2 — Medium complexity** | EU-adjacent or similar regulatory framework; own currency (FX required); local language required | Serbia, Bosnia, Poland, Hungary | 4–8 weeks |
+| **Tier 3 — High complexity** | Non-EU; distinct regulatory framework; non-Latin script or major language difference; data residency requirements | Turkey, UAE, Saudi Arabia | 8–16 weeks |
+| **Tier 4 — Very high complexity** | US (HIPAA); China (data sovereignty); heavily regulated markets | USA, China, India | 16–26 weeks + legal counsel |
+
+**Recommendation for first expansion:** Select a Tier 1 country. The fastest path to proving the international model is a country where GDPR is already handled (EU), Euro is the currency (no FX integration needed), and regulatory requirements are familiar. Slovenia or Austria are natural first candidates given Solimed's existing Croatian base.
+
+#### Country Scaling Architecture
+
+```
+Global (Azure Traffic Manager)
+├── Croatia (West Europe region) — existing
+│   ├── Solimed Clinic
+│   └── Medico RI
+├── Country 2 (appropriate Azure region)
+│   └── Site(s)
+├── Country 3 (appropriate Azure region)
+│   └── Site(s)
+└── ...
+
+Shared services (single region, non-PII):
+├── Authentication (Azure AD B2C — global)
+├── Power BI Embedded (global)
+└── Platform admin console
+```
+
+Each country is an isolated tenant:
+- Separate database schema (row-level security by `country_id`) or separate database instance (for strict data residency)
+- Separate Azure resource group in the correct region
+- Country-specific configuration: language, currency, tax rules, required fields, regulatory flags
+- Shared codebase — configuration drives behavior, not code branches
+
+#### Revenue Model for Country Scaling
+
+As each country goes live, the platform should generate incremental revenue from that country's sites without incremental development cost. The target model:
+
+| Model | Description | When to Use |
+|---|---|---|
+| **Managed service** (current) | Solimed uses the platform for their own sites; no external licensing | Phases 1–3 |
+| **White-label to partner sites** | Other SMOs in new countries license the platform under their brand | Phase 3–4 |
+| **SaaS subscription** | Sites and CROs pay per-study or per-site subscription | Phase 4–5 |
+| **CRO portal licensing** | CROs pay for read-only access to their data across all Solimed sites | Phase 5 |
+
+Ivan and Drew's comment during the demo — *"Do you guys charge for the app?" "Currently no." "That needs to change."* — validates that the SaaS licensing model is already on the roadmap in Solimed's thinking. The technical architecture recommended here is explicitly designed to support it.
+
+---
+
+### 9.5 Scaling Capability Summary
+
+| Capability Dimension | Biggest Bottleneck Today | Phase 2 Unlock | Phase 5 Target State |
+|---|---|---|---|
+| **Functional** | Multi-arm backlog; fee accuracy; no procedure drill-down | API layer centralizes and tests all business logic | Full EDC sync, automated invoicing, AI scheduling optimization |
+| **Technical capacity** | Power Apps gallery performance; no multi-tenancy | API layer + Azure SQL handle 10x current volume | AKS auto-scale; 99.9% uptime; <500ms API globally |
+| **Operational** | Single developer; no tests; no staging; no monitoring | CI/CD pipeline; test suite; staging env; Azure Monitor | Full observability; tiered support; SOC 2 Type II |
+| **Geographic** | 1 country; no localization; no data residency | Multi-tenant schema; country config layer | 10+ countries; self-serve onboarding; <2 weeks per new country |
