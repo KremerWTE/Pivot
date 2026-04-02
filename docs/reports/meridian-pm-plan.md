@@ -5,8 +5,8 @@
 **Document Type:** Product PM Plan
 **Prepared by:** Pivot
 **Date:** 2026-04-02
-**Version:** 1.0
-**Horizon:** 24 months (Months 1–24)
+**Version:** 2.0 — Compressed (18-Month)
+**Horizon:** 18 months (Months 1–18)
 
 ---
 
@@ -28,7 +28,26 @@ Meridian is a unified clinical trial intelligence platform built across five lay
 
 ---
 
-## 2. Development Philosophy
+## 2. How 18 Months Was Achieved
+
+The original plan was 24 months. Six months were removed through four specific changes:
+
+| Change | Months Saved |
+|---|---|
+| Phase 0 runs in parallel with Sprint 1 — not sequentially | ~1 month |
+| Phase 1 scoped to Layers 1–3 MVP only; Layers 4–5 deferred to Phase 2 | ~3 months |
+| Second Full-Stack Developer added from Sprint 1 | ~2 months |
+| Phase 2 absorbs Layers 4–5 while simultaneously onboarding second site | Enables parallel tracks |
+
+**What was NOT cut:**
+- Data quality and migration rigor — rushing data migration creates production incidents
+- Mladen knowledge transfer (Sprint 1–2 is still 100% dedicated to this)
+- Multi-tenancy rewrite in Phase 2 — this cannot be shortcut
+- Security and compliance gates before Phase 3
+
+---
+
+## 3. Development Philosophy
 
 **Build with, not for.** Solimed is not just a client — they are the development partner. Every feature built in Phase 1 is validated against real clinical trial operations before we declare it market-ready.
 
@@ -40,22 +59,24 @@ Meridian is a unified clinical trial intelligence platform built across five lay
 
 ---
 
-## 3. Phases Overview
+## 4. Phases Overview
 
 | Phase | Name | Duration | Primary Deliverable |
 |---|---|---|---|
-| **Phase 0** | Foundation | Weeks 1–4 | Team, tooling, access, architecture decisions |
-| **Phase 1** | Solimed Build | Months 1–9 | Layers 1–5 built for Solimed; platform validated in production |
-| **Phase 2** | Second Site | Months 10–15 | Multi-tenancy live; second SMO onboarded; AI trained on real data |
-| **Phase 3** | Market Launch | Months 16–24 | Self-serve onboarding; subscription billing; 5+ sites live |
+| **Phase 0** | Foundation | Weeks 1–2 (parallel to Sprint 1) | Team, tooling, access, architecture decisions |
+| **Phase 1** | Solimed MVP | Months 1–6 / Sprints 1–12 | Layers 1–3 live at Solimed; coordinators fully off Power Apps |
+| **Phase 2** | Second Site + AI | Months 7–11 / Sprints 13–22 | Layers 4–5 added; second SMO onboarded; AI models trained |
+| **Phase 3** | Market Launch | Months 12–18 / Sprints 23–36 | Self-serve; subscription billing; 5+ sites; mobile app |
 
 ---
 
-## 4. Phase 0 — Foundation (Weeks 1–4)
+## 5. Phase 0 — Foundation (Weeks 1–2, Parallel to Sprint 1)
 
-**Goal:** Set the team up to build. No features ship in Phase 0 — only infrastructure, access, and decisions.
+**Goal:** Set the team up to build. Phase 0 runs simultaneously with Sprint 1 — access provisioning and architecture decisions happen while Sprint 1 discovery is underway. No features ship in Phase 0.
 
-### Week 1: Access & Discovery
+**Key change from v1.0:** Phase 0 is 2 weeks, not 4. Week 1 (access) overlaps 100% with Sprint 1. Week 2 (ADRs + environment) overlaps with Sprint 1 tail-end. This eliminates the 4-week dead zone before development starts.
+
+### Week 1: Access & Discovery (Runs Parallel to Sprint 1)
 
 | Task | Owner | Done When |
 |---|---|---|
@@ -70,7 +91,7 @@ Meridian is a unified clinical trial intelligence platform built across five lay
 | Linear / Jira project created | Pivot PM | Backlog created; all team members invited |
 | Communication channels set up (Teams/Slack) | Pivot PM | Channels live; Solimed team added |
 
-### Week 2: Architecture Decision Records (ADRs)
+### Week 2: Architecture Decisions + Environment (Overlaps Sprint 1 Close)
 
 The following decisions must be made and documented before a line of code is written:
 
@@ -82,24 +103,10 @@ The following decisions must be made and documented before a line of code is wri
 | Auth provider: Auth0 vs. Azure AD B2C | Cost at scale, Microsoft ecosystem | Week 2 |
 | Communications: Twilio vs. Azure Communication Services | HIPAA BAA, feature set, cost | Week 2 |
 | FHIR layer: Azure Health Data Services vs. build own | Cost vs. control | Week 2 |
-| Frontend: Next.js only vs. Next.js + React Native | Mobile priority in Phase 1 | Week 2 |
+| Frontend: Next.js only vs. Next.js + React Native | Mobile priority timeline | Week 2 |
 | BI reporting: Power BI Embedded vs. build custom | Solimed compatibility, cost | Week 2 |
 
-### Week 3: Data Model & Knowledge Transfer
-
-| Task | Owner | Done When |
-|---|---|---|
-| Full Solimed data model documented (all Dataverse tables, relationships, field types) | Pivot + Mladen | ERD diagram approved |
-| All Power Apps business logic documented (fee calculations, visit status rules, auto-scheduling logic) | Pivot + Mladen | Logic document reviewed by Ivan |
-| All Power BI DAX measures documented | Pivot BI Engineer + Mladen | All 30+ measures documented |
-| Known workarounds and edge cases documented | Mladen | List reviewed by Ivan |
-| Test data vs. production data identified and flagged | Mladen | Clean data baseline established |
-| Data quality audit: null rates, duplicates, value distributions | Pivot + Mladen | Audit report complete |
-| Power Apps staging environment created | Mladen + Pivot | Staging env live and accessible |
-
-### Week 4: Environment Setup & Sprint 1 Planning
-
-| Task | Owner | Done When |
+| Environment Task | Owner | Done When |
 |---|---|---|
 | Azure Dev + Staging + Prod environments provisioned | Pivot DevOps | All 3 environments live |
 | CI/CD pipeline: GitHub Actions → Staging | Pivot Tech Lead | Auto-deploy on merge to `main` |
@@ -107,13 +114,24 @@ The following decisions must be made and documented before a line of code is wri
 | API skeleton running (health check endpoint live) | Pivot Tech Lead | `/health` returns 200 |
 | Auth0 / Azure AD B2C tenant configured | Pivot Tech Lead | Test user can log in |
 | Sprint 1 backlog groomed and estimated | Pivot PM + team | All Sprint 1 stories estimated and ready |
-| Kickoff meeting with Ivan + Drew | Pivot PM | Demo of Phase 0 deliverables; Sprint 1 plan reviewed |
 
 ---
 
-## 5. Phase 1 — Solimed Build (Months 1–9 / Sprints 1–18)
+## 6. Phase 1 — Solimed MVP (Months 1–6 / Sprints 1–12)
 
-**Goal:** Build a complete, production-grade version of Meridian using Solimed as the design partner. By the end of Phase 1, Solimed is fully off Power Apps and running on Meridian. All 5 layers are functional for Solimed's specific use case.
+**Goal:** Build Layers 1–3 in production at Solimed. By end of Sprint 12, coordinators are fully off Power Apps for daily operations. Layers 4 (Communication) and 5 (AI) are deferred to Phase 2 — this is the primary compression decision.
+
+**What is deferred vs. delivered:**
+
+| Layer | Phase 1 | Deferred to |
+|---|---|---|
+| Layer 1 — Data Ingestion | ✅ Full data migration + EDC sync | — |
+| Layer 2 — Payment Engine | ✅ Full fee engine + invoicing + cash flow | — |
+| Layer 3 — Clinical Operations | ✅ Full coordinator UI; coordinators off Power Apps | — |
+| Layer 4 — Communication Hub | ❌ Deferred | Phase 2 Sprint 13–16 |
+| Layer 5 — AI Intelligence | ❌ Deferred (except backlog quality + revenue ladder) | Phase 2 Sprint 17–20 |
+
+**Team:** 2 Full-Stack Developers from Sprint 1 (vs. 1 in original plan) — this is the primary calendar compression.
 
 ### Sprint Cadence
 - **2-week sprints**
@@ -124,209 +142,231 @@ The following decisions must be made and documented before a line of code is wri
 
 ---
 
-### Layer 1 — Data Ingestion Hub (Sprints 1–4)
+### Layer 1 — Data Ingestion Hub (Sprints 1–3)
 
-**Goal:** Establish the authoritative data store. Migrate Solimed from Power Apps/Dataverse to Meridian's PostgreSQL backend.
+**Goal:** Establish the authoritative data store. Migrate Solimed from Power Apps/Dataverse to Meridian's PostgreSQL backend. Compressed from 4 sprints to 3 via second developer.
 
 | Sprint | Deliverables |
 |---|---|
-| **Sprint 1** | Database schema v1: Studies, Site Studies, Patients, Visits, Investigators, Budgets — modelled from Solimed data model ERD |
-| **Sprint 1** | Data migration script: full Dataverse export → PostgreSQL import with validation |
-| **Sprint 2** | Migration dry-run on staging: all Solimed data migrated; record counts match; no data loss |
-| **Sprint 2** | EDC sync adapter v1: read-only pull of visit status from one CRO's EDC system (pilot CRO selected with Ivan) |
-| **Sprint 3** | Multi-tenant schema: `tenant_id` + `country_id` + `site_id` on all tables; row-level security enforced |
-| **Sprint 3** | Excel time tracking migration: import historical time tracking data from Excel into PostgreSQL `time_entries` table |
-| **Sprint 4** | FHIR adapter stub: Azure Health Data Services provisioned; basic FHIR R4 patient resource read (for Phase 2 EHR integration) |
-| **Sprint 4** | Data ingestion API: REST endpoints for external data push; webhook receiver for EDC event notifications |
+| **Sprint 1** | Knowledge transfer: all Solimed data model, business logic, DAX measures, edge cases documented with Mladen; data quality audit complete; test data flagged |
+| **Sprint 1** | Database schema v1: Studies, Site Studies, Patients, Visits, Investigators, Budgets — modelled from Solimed Dataverse ERD |
+| **Sprint 2** | Data migration script: full Dataverse export → PostgreSQL import with validation; dry-run on staging; record counts match; no data loss |
+| **Sprint 2** | Multi-tenant schema: `tenant_id` + `country_id` + `site_id` on all tables; row-level security enforced from Day 1 |
+| **Sprint 3** | Excel time tracking migration: historical time tracking data imported into PostgreSQL `time_entries` table |
+| **Sprint 3** | EDC sync adapter v1: read-only pull of visit status from one pilot CRO EDC system (selected with Ivan) |
+| **Sprint 3** | Data ingestion API: REST endpoints for external data push; webhook receiver for EDC event notifications |
+| **Sprint 3** | FHIR adapter stub: Azure Health Data Services provisioned; basic FHIR R4 patient resource read (for Phase 2 EHR integration) |
 
-**Milestone M1.1:** All Solimed data live in Meridian PostgreSQL; Power Apps reads from Meridian API (not Dataverse) — end Sprint 4
+**Milestone M1.1:** All Solimed data live in Meridian PostgreSQL; Power Apps reads from Meridian API (not Dataverse) — end Sprint 3
 
 ---
 
-### Layer 2 — Payment Engine (Sprints 3–8)
+### Layer 2 — Payment Engine (Sprints 3–7)
 
-**Goal:** Full investigator fee management, CRO invoicing, patient reimbursements, and cash flow forecasting — replacing Solimed's current manual billing process entirely.
+**Goal:** Full investigator fee management, CRO invoicing, patient reimbursements, and cash flow forecasting. Compressed from 6 sprints to 5 via second developer running payment logic in parallel with Layer 1 close-out.
 
 | Sprint | Deliverables |
 |---|---|
-| **Sprint 3** | Investigator fee engine v1: PI fee, PI cut %, sub-investigator splits, referral doctor fee — all calculated from API (not Power Apps formulas) |
+| **Sprint 3** | Investigator fee engine v1: PI fee, PI cut %, sub-investigator splits, referral doctor fee — all calculated from API |
 | **Sprint 4** | Working hours flag: in-hours vs. after-hours toggle on visit record; fee engine applies correct rate per flag |
-| **Sprint 5** | Monthly investigator specification generator: auto-generate PDF spec per investigator from approved visits for selected month |
-| **Sprint 5** | Automated spec delivery: email each investigator their monthly specification on configured schedule; finance review gate (approve before send / auto-send) |
-| **Sprint 6** | Screen fail allotment engine: contractual allotment per study; running counter; over-allotment flag in P&L; billable vs. non-billable split |
-| **Sprint 6** | Revenue status ladder: Scheduled → Earned → Approved → Invoiced → Received → Written Off — all visit revenue classified at all times |
-| **Sprint 7** | Invoice generation: auto-generate CRO invoice when visit reaches Approved; PDF with procedure-level line items; invoice record stored in system |
-| **Sprint 7** | One-time fee invoicing: startup, archiving, pharmacy, administrative — billing triggers and invoice generation |
-| **Sprint 8** | Payment receipt tracking: mark invoice paid; payment date and amount recorded; cash position updated |
-| **Sprint 8** | Cash flow forecast: 13-week rolling forecast from scheduled visits + payment terms; 12-month strategic forecast with base/upside/downside scenarios |
-| **Sprint 8** | Patient reimbursement v1: travel claim submission (coordinator-entered); approval workflow; payment record |
+| **Sprint 4** | Screen fail allotment engine: contractual allotment per study; running counter; over-allotment flag in P&L; billable vs. non-billable split |
+| **Sprint 5** | Revenue status ladder: Scheduled → Earned → Approved → Invoiced → Received → Written Off — all visit revenue classified at all times |
+| **Sprint 5** | Monthly investigator specification generator: auto-generate PDF spec per investigator from approved visits |
+| **Sprint 5** | Automated spec delivery: email each investigator their monthly specification; finance review gate before send |
+| **Sprint 6** | Invoice generation: auto-generate CRO invoice when visit reaches Approved; PDF with procedure-level line items |
+| **Sprint 6** | One-time fee invoicing: startup, archiving, pharmacy, administrative billing triggers |
+| **Sprint 7** | Payment receipt tracking: mark invoice paid; payment date and amount; cash position updated |
+| **Sprint 7** | Cash flow forecast: 13-week rolling + 12-month strategic forecast with base/upside/downside scenarios |
+| **Sprint 7** | Patient reimbursement v1: travel claim submission; approval workflow; payment record |
 
-**Milestone M1.2:** First automated investigator specification sent to Solimed investigators via Meridian — end Sprint 5
-**Milestone M1.3:** First invoice auto-generated and tracked through to payment receipt — end Sprint 8
-
----
-
-### Layer 3 — Clinical Operations (Sprints 5–12)
-
-**Goal:** Full study/visit management replacing Power Apps coordinator UI. Coordinators use Meridian web app exclusively by end of Sprint 12.
-
-| Sprint | Deliverables |
-|---|---|
-| **Sprint 5** | Next.js app scaffold: auth, navigation, role-based menu, responsive layout |
-| **Sprint 5** | Studies list screen: create, view, search studies; CRO assignment; status (Draft/Open/On Hold/Stopped/Locked) |
-| **Sprint 6** | Site study setup: full configuration (investigators, visit budgets, one-time budgets, payment terms); site-level default budgets |
-| **Sprint 6** | Patient enrollment: add patient, assign ID, link to site study, initiate visit schedule |
-| **Sprint 7** | Visit logs — patient view: full coordinator dashboard; all visit statuses; visit date management; investigator assignment |
-| **Sprint 7** | Auto-scheduling at randomization: all protocol visits auto-populated from randomization date |
-| **Sprint 7** | Auto-skip on screen fail: future visits set to Skipped; study arm assignment for multi-arm protocols |
-| **Sprint 8** | Coordinator to-do dashboard: cross-study upcoming visits; overdue alerts; one-click status update |
-| **Sprint 8** | Visit tolerance warning system: colour-coded Green/Yellow/Red per tolerance window |
-| **Sprint 9** | Amendment handling: effective-from date on budget changes; multi-site amendment propagation; coordinator notification |
-| **Sprint 9** | Study show/stop controls: full lifecycle with auto-generated Stop Report |
-| **Sprint 9** | Bulk status operations: multi-visit select and update |
-| **Sprint 10** | Study progress summary card: % complete, % budget consumed, visits at risk |
-| **Sprint 10** | Normita & time tracking: time norms derived from visit budget; planned vs. actual hours; capacity heatmap |
-| **Sprint 11** | RBAC v1: Platform Admin / Site Admin / Coordinator / Investigator / Finance / Read-Only — enforced at API and UI |
-| **Sprint 11** | PII audit log: every patient data access and modification logged with user, timestamp, action |
-| **Sprint 12** | eSource v1: structured visit checklist; digital consultation report; timestamped + attributed entries; query management |
-| **Sprint 12** | Coordinator UAT sprint: 2–3 Solimed coordinators use Meridian for live visits; feedback incorporated |
-
-**Milestone M1.4:** Coordinators conducting live Solimed visits in Meridian web app — end Sprint 12
+**Milestone M1.2:** First automated investigator specification sent via Meridian — end Sprint 5
+**Milestone M1.3:** First invoice auto-generated and tracked to payment receipt — end Sprint 7
 
 ---
 
-### Layer 4 — Communication Hub (Sprints 9–14)
+### Layer 3 — Clinical Operations (Sprints 4–11)
 
-**Goal:** All patient communication — voice, SMS, video — flows through Meridian with AI transcription and clinical context.
+**Goal:** Full study/visit management replacing Power Apps coordinator UI. Coordinators use Meridian web app exclusively by end of Sprint 11. Compressed from 8 sprints to 8 by running UI development in parallel with payment engine work.
 
 | Sprint | Deliverables |
 |---|---|
-| **Sprint 9** | Twilio integration: outbound/inbound voice calls from within patient record; call logged against patient |
-| **Sprint 10** | Real-time call transcription: live transcript during call; speaker labeling (Coordinator / Patient) |
-| **Sprint 10** | Post-call AI summary: key topics, action items, next steps — auto-generated via Claude API; linked to patient record and upcoming visit |
-| **Sprint 11** | SMS / MMS: two-way texting from patient record; TCPA-compliant opt-out; automated visit reminder templates |
-| **Sprint 11** | Automated visit reminders: SMS sent 48 hours before visit; pre-visit instructions; post-visit follow-up |
-| **Sprint 12** | Omnichannel inbox: unified view of all calls, SMS, emails per patient — chronological thread |
-| **Sprint 13** | Real-time coordinator coaching: AI surfaces protocol reminders during call ("Visit W144 due in 5 days — confirm appointment"); AE detection prompts |
-| **Sprint 13** | Screening call assistant: during screening calls, AI displays inclusion/exclusion criteria; prompts coordinator to ask each question; records responses |
-| **Sprint 14** | Sentiment analysis per patient: per-call sentiment score; sentiment trend over time; deteriorating engagement alert |
-| **Sprint 14** | Video visits: native video for Virtual visit types; recorded with consent; linked to visit record |
-| **Sprint 14** | CRO / sponsor communication channel: per-study channel for monitor communications; meeting intelligence (AI summary + action items) |
+| **Sprint 4** | Next.js app scaffold: auth, navigation, role-based menu, responsive layout |
+| **Sprint 4** | Studies list screen: create, view, search studies; CRO assignment; status (Draft/Open/On Hold/Stopped/Locked) |
+| **Sprint 5** | Site study setup: full configuration (investigators, visit budgets, one-time budgets, payment terms) |
+| **Sprint 5** | Patient enrollment: add patient, assign ID, link to site study, initiate visit schedule |
+| **Sprint 6** | Visit logs — patient view: full coordinator dashboard; all visit statuses; visit date management; investigator assignment |
+| **Sprint 6** | Auto-scheduling at randomization: all protocol visits auto-populated from randomization date |
+| **Sprint 6** | Auto-skip on screen fail: future visits set to Skipped; study arm assignment for multi-arm protocols |
+| **Sprint 7** | Coordinator to-do dashboard: cross-study upcoming visits; overdue alerts; one-click status update |
+| **Sprint 7** | Visit tolerance warning system: colour-coded Green/Yellow/Red per tolerance window |
+| **Sprint 8** | Amendment handling: effective-from date on budget changes; multi-site amendment propagation |
+| **Sprint 8** | Study show/stop controls: full lifecycle with auto-generated Stop Report |
+| **Sprint 8** | Bulk status operations: multi-visit select and update |
+| **Sprint 9** | Study progress summary card: % complete, % budget consumed, visits at risk |
+| **Sprint 9** | Normita & time tracking: time norms derived from visit budget; planned vs. actual hours; capacity heatmap |
+| **Sprint 10** | RBAC v1: Platform Admin / Site Admin / Coordinator / Investigator / Finance / Read-Only — enforced at API and UI |
+| **Sprint 10** | PII audit log: every patient data access and modification logged with user, timestamp, action |
+| **Sprint 11** | eSource v1: structured visit checklist; digital consultation report; timestamped + attributed entries; query management |
+| **Sprint 11** | Coordinator UAT: 2–3 Solimed coordinators use Meridian for live visits; feedback incorporated |
 
-**Milestone M1.5:** First Solimed coordinator patient call conducted through Meridian with AI transcript and post-call summary — end Sprint 10
+**Milestone M1.4:** Coordinators conducting live Solimed visits in Meridian web app — end Sprint 11
 
 ---
 
-### Layer 5 — AI Intelligence (Sprints 11–18)
-
-**Goal:** Predictive capabilities built on top of the operational data and communication data accumulated in Layers 1–4.
+### Phase 1 Close (Sprint 12)
 
 | Sprint | Deliverables |
 |---|---|
-| **Sprint 11** | Backlog quality engine: stratify all backlog into Committed / Probable / At Risk / Excluded; quality % per study |
 | **Sprint 12** | Multi-arm backlog fix: backlog calculated only from patient's assigned arm; unresolved arm alert |
-| **Sprint 13** | Enrollment velocity tracker: actual vs. target enrollment rate; projected completion date; revenue implication of off-pace enrollment |
-| **Sprint 13** | Protocol completion projection: per-patient visit forecast; study-level revenue curve for next 12 months |
-| **Sprint 14** | Revenue recognition dashboard: billable vs. at-risk vs. written-off split; screen fail revenue recognition |
-| **Sprint 14** | CRO performance scorecard: payment terms adherence, screen fail rate, margin per CRO |
-| **Sprint 15** | Dropout risk model v1: rule-based scoring using missed visits, overdue visits, sentiment trend, social determinants |
-| **Sprint 16** | Dropout risk model v2: ML model trained on Solimed's historical visit + communication data; per-patient risk score with contributing factors |
-| **Sprint 16** | Patient qualification engine v1: run protocol eligibility criteria against Solimed's patient database; ranked candidate list |
-| **Sprint 17** | Unit economics dashboard: revenue per patient, per visit, per coordinator hour; study type profitability |
-| **Sprint 17** | Coordinator performance intelligence: visit efficiency, protocol adherence rate, patient retention rate per coordinator |
-| **Sprint 18** | Predictive payment dashboard: cash flow prediction, CRO payment timing model, investigator payment forecast |
-| **Sprint 18** | Phase 1 hardening: full regression testing, security audit, performance testing at 10x Solimed volume |
+| **Sprint 12** | Backlog quality engine v1: stratify all backlog into Committed / Probable / At Risk / Excluded; quality % per study |
+| **Sprint 12** | Phase 1 hardening: full regression testing, security audit, performance testing at 10x Solimed volume |
+| **Sprint 12** | Power Apps decommission plan: Power Apps set to read-only; coordinators 100% on Meridian |
 
-**Milestone M1.6:** Dropout risk model live and scoring all 321 active Solimed patients — end Sprint 16
-**Milestone M1.7:** Phase 1 complete — Solimed fully live on Meridian; all 5 layers operational — end Sprint 18
+**Milestone M1.5:** Phase 1 complete — Solimed fully live on Meridian; Layers 1–3 operational — end Sprint 12
 
 ---
 
-### Phase 1 Power BI Screens (Delivered Across Sprints 6–18)
+### Phase 1 Power BI Screens (Sprints 5–12)
 
 | Screen | Sprint | Layer |
 |---|---|---|
-| Enhanced P&L Dashboard | Sprint 6 | Layer 2 |
-| Backlog Quality Dashboard v2 | Sprint 6 | Layer 5 |
-| Normita & Time Dashboard | Sprint 6 | Layer 3 |
-| Investigator Specification v2 | Sprint 6 | Layer 2 |
-| Rolling 13-Week Cash Flow | Sprint 8 | Layer 2 |
-| 12-Month Revenue Forecast | Sprint 8 | Layer 2 |
-| Enrollment Velocity Tracker | Sprint 13 | Layer 5 |
-| Protocol Completion Projection | Sprint 13 | Layer 5 |
-| Revenue Recognition Dashboard | Sprint 14 | Layer 2 |
-| CRO Performance Scorecard | Sprint 14 | Layer 5 |
-| Unit Economics Dashboard | Sprint 17 | Layer 5 |
-| Coordinator Performance | Sprint 17 | Layer 5 |
+| Enhanced P&L Dashboard | Sprint 5 | Layer 2 |
+| Normita & Time Dashboard | Sprint 5 | Layer 3 |
+| Investigator Specification v2 | Sprint 5 | Layer 2 |
+| Backlog Quality Dashboard | Sprint 6 | Layer 5 (partial) |
+| Rolling 13-Week Cash Flow | Sprint 7 | Layer 2 |
+| 12-Month Revenue Forecast | Sprint 7 | Layer 2 |
+| Revenue Recognition Dashboard | Sprint 10 | Layer 2 |
+| Multi-Arm Backlog Fix Dashboard | Sprint 12 | Layer 5 (partial) |
 
 ---
 
-## 6. Phase 2 — Second Site (Months 10–15 / Sprints 19–30)
+## 7. Phase 2 — Second Site + AI (Months 7–11 / Sprints 13–22)
 
-**Goal:** Prove multi-tenancy by onboarding a second SMO. AI models trained on Solimed data are applied to new site data. Validate the platform is a product, not a custom build.
+**Goal:** Two parallel tracks running simultaneously — (1) add Layers 4 and 5 to Solimed, and (2) onboard the second site. By end of Phase 2, Meridian has two live sites, full communication intelligence, and AI models trained on real multi-site data.
 
-### Target Second Site Criteria
-- EU-based (GDPR already handled by platform)
+**Key change from v1.0:** In the original plan, Communication Hub and AI were built in Phase 1 (Sprints 9–18). In this compressed plan, they are built in Phase 2 alongside the second site onboarding — two tracks, not sequential phases. This requires careful dependency management but saves ~3 months of total calendar time.
+
+### Track A — Layer 4: Communication Hub (Sprints 13–16)
+
+| Sprint | Deliverables |
+|---|---|
+| **Sprint 13** | Twilio integration: outbound/inbound voice calls from within patient record; call logged against patient |
+| **Sprint 13** | Real-time call transcription: live transcript during call; speaker labeling (Coordinator / Patient) |
+| **Sprint 14** | Post-call AI summary: key topics, action items, next steps — auto-generated via Claude API; linked to patient and visit |
+| **Sprint 14** | SMS / MMS: two-way texting from patient record; TCPA-compliant opt-out; automated visit reminder templates |
+| **Sprint 14** | Automated visit reminders: SMS 48 hours before visit; pre-visit instructions; post-visit follow-up |
+| **Sprint 15** | Omnichannel inbox: unified view of all calls, SMS, emails per patient — chronological thread |
+| **Sprint 15** | Real-time coordinator coaching: AI surfaces protocol reminders during call; AE detection prompts |
+| **Sprint 16** | Screening call assistant: AI displays inclusion/exclusion criteria during screening calls; records responses |
+| **Sprint 16** | Sentiment analysis per patient: per-call sentiment score; trend over time; deteriorating engagement alert |
+| **Sprint 16** | Video visits: native video for Virtual visit types; recorded with consent; linked to visit record |
+
+**Milestone M2.1:** First Solimed coordinator patient call through Meridian with AI transcript and post-call summary — end Sprint 14
+
+### Track B — Second Site Onboarding (Sprints 13–19)
+
+**Target second site criteria:**
+- EU-based (GDPR already handled)
 - Small-to-mid SMO (5–20 active studies; 50–500 active patients)
 - Different CRO mix from Solimed (validates CRO-agnostic approach)
-- Ideally Drew Domescik network introduction or Solimed CRO referral
-
-### Sprint Plan
+- Identified via Drew Domescik network or Solimed CRO referral by Month 6
 
 | Sprint | Deliverables |
 |---|---|
-| **Sprint 19** | Second site discovery: data model, current tools, pain points documented; onboarding checklist completed |
-| **Sprint 20** | Tenant provisioning: new tenant created in 48 hours via onboarding wizard; all configuration options available |
-| **Sprint 21** | Data migration: second site's existing data imported to Meridian; validation complete |
-| **Sprint 22** | Localisation v1: i18n framework; locale-aware dates, numbers, currencies; second language added if required |
-| **Sprint 23** | Multi-currency engine: per-site currency config; FX rate integration (ECB API); historical rate preservation |
-| **Sprint 24** | Second country regulatory config: country-specific required fields; data residency in correct Azure region |
-| **Sprint 25** | Patient qualification engine v2: trained on combined Solimed + second site data; cross-tenant model (anonymised) |
-| **Sprint 26** | EHR integration pilot: FHIR R4 read from one EHR system used by second site (Epic or Cerner); patient profile enrichment |
-| **Sprint 27** | Recruitment pipeline v1: internal discovery (query patient database against protocol criteria); referral physician network management |
-| **Sprint 28** | Patient-facing pre-screening: public-facing questionnaire for study-specific pre-screening; qualified leads enter recruitment pipeline |
-| **Sprint 29** | eConsent module: digital ICF management; re-consent automation on amendment; 21 CFR Part 11 compliant |
-| **Sprint 30** | Phase 2 hardening: multi-tenant security audit; penetration testing; GDPR compliance review; Phase 2 sign-off |
+| **Sprint 13** | Second site discovery: data model, current tools, pain points documented; onboarding checklist |
+| **Sprint 14** | Tenant provisioning: new tenant created via onboarding wizard; all configuration available |
+| **Sprint 15** | Data migration: second site's existing data imported to Meridian; validation complete |
+| **Sprint 16** | Localisation v1: i18n framework; locale-aware dates, numbers, currencies; second language if required |
+| **Sprint 17** | Multi-currency engine: per-site currency config; FX rate integration (ECB API); historical rate preservation |
+| **Sprint 18** | Second country regulatory config: country-specific required fields; data residency in correct Azure region |
+| **Sprint 19** | Second site live: processing real studies; coordinators using Meridian in production |
 
-**Milestone M2.1:** Second site tenant live and processing real studies — end Sprint 22
-**Milestone M2.2:** First EHR-sourced patient identified as a qualified study candidate — end Sprint 26
-**Milestone M2.3:** Security / penetration test passed — end Sprint 30
+**Milestone M2.2:** Second site live and processing real studies — end Sprint 19
 
----
-
-## 7. Phase 3 — Market Launch (Months 16–24 / Sprints 31–48)
-
-**Goal:** Open Meridian to the market. Self-serve onboarding. Subscription billing. Target 5+ sites live by Month 24.
-
-### Sprint Plan
+### Track C — Layer 5: AI Intelligence (Sprints 17–21)
 
 | Sprint | Deliverables |
 |---|---|
-| **Sprint 31–32** | Self-serve onboarding wizard: new site completes setup without Pivot involvement; all config screens; guided flow |
-| **Sprint 33** | Subscription billing: Stripe integration; per-site/per-study tier pricing; automated invoicing to customers; usage metering |
-| **Sprint 34** | Customer admin portal: site admins manage their own users, studies, CRO connections, billing |
-| **Sprint 35–36** | CRO portal: CRO-facing read-only view of all their studies across all Meridian sites; live visit status; payment specs |
-| **Sprint 37** | Recruitment engine v2: digital intake forms (public landing pages); campaign lead capture; pipeline conversion tracking; diversity monitoring |
-| **Sprint 38** | External registry integration: connect to 1–2 disease registries; opt-in patient discovery from registry data |
-| **Sprint 39** | Regulatory intelligence v1: country regulatory change monitoring; alert when a change affects active studies on the platform |
-| **Sprint 40** | Mobile app v1 (React Native): coordinator schedule view; visit check-in/out; offline visit logging with sync |
-| **Sprint 41** | Mobile app v2: investigator app; push notifications; e-signature on mobile |
-| **Sprint 42** | AI model marketplace: sites can enable/disable AI features per study; model performance dashboards |
-| **Sprint 43–44** | Protocol deviation AI: real-time detection of deviations from protocol schedule; deviation classification (minor vs. major); CRO notification workflow |
-| **Sprint 45** | Document management: version-controlled doc store per study; expiry tracking; e-signature via DocuSign API |
-| **Sprint 46** | Sponsor-facing dashboard: sponsor view of their study performance across all Meridian sites (read-only; separate from CRO portal) |
-| **Sprint 47** | Platform hardening: SOC 2 Type II readiness audit; HIPAA BAA documentation; performance testing at 50-site scale |
-| **Sprint 48** | Market launch: public website live; 5+ sites onboarded; press / industry announcement |
+| **Sprint 17** | Enrollment velocity tracker: actual vs. target rate; projected completion date; revenue implication |
+| **Sprint 17** | Protocol completion projection: per-patient visit forecast; study-level revenue curve 12 months |
+| **Sprint 18** | CRO performance scorecard: payment terms adherence, screen fail rate, margin per CRO |
+| **Sprint 18** | Unit economics dashboard: revenue per patient, per visit, per coordinator hour; study type profitability |
+| **Sprint 19** | Dropout risk model v1: rule-based scoring using missed visits, overdue visits, sentiment trend |
+| **Sprint 20** | Dropout risk model v2: ML model trained on combined Solimed + second site data; per-patient risk score |
+| **Sprint 20** | Patient qualification engine v1: run protocol eligibility criteria against patient database; ranked candidate list |
+| **Sprint 21** | Predictive payment dashboard: cash flow prediction, CRO payment timing model, investigator payment forecast |
+| **Sprint 21** | Coordinator performance intelligence: visit efficiency, protocol adherence rate, patient retention per coordinator |
 
-**Milestone M3.1:** First self-serve site onboarded without Pivot involvement — end Sprint 32
-**Milestone M3.2:** 5 sites live on Meridian — end Sprint 40
-**Milestone M3.3:** Mobile app in App Store and Google Play — end Sprint 41
-**Milestone M3.4:** SOC 2 Type II audit initiated — end Sprint 47
-**Milestone M3.5:** Public market launch — end Sprint 48
+**Milestone M2.3:** Dropout risk model live and scoring all active patients across both sites — end Sprint 20
+
+### Phase 2 Close (Sprint 22)
+
+| Sprint | Deliverables |
+|---|---|
+| **Sprint 22** | EHR integration pilot: FHIR R4 read from one EHR system used by second site; patient profile enrichment |
+| **Sprint 22** | Penetration test: no critical/high findings |
+| **Sprint 22** | GDPR compliance review: both countries pass |
+| **Sprint 22** | Phase 2 hardening: multi-tenant security audit; performance testing at 2-site scale |
+| **Sprint 22** | Self-serve onboarding wizard v1: complete and tested (prerequisite for Phase 3) |
+
+**Milestone M2.4:** Penetration test passed; GDPR review passed; both sites live — end Sprint 22
 
 ---
 
-## 8. Team Structure
+## 8. Phase 3 — Market Launch (Months 12–18 / Sprints 23–36)
+
+**Goal:** Open Meridian to the market. Self-serve onboarding. Subscription billing. 5+ sites live by Month 18.
+
+| Sprint | Deliverables |
+|---|---|
+| **Sprint 23–24** | Self-serve onboarding wizard v2: new site completes setup without Pivot involvement; guided flow; config screens |
+| **Sprint 25** | Subscription billing: Stripe integration; per-site/per-study tier pricing; automated invoicing; usage metering |
+| **Sprint 25** | Customer admin portal: site admins manage their own users, studies, CRO connections, billing |
+| **Sprint 26** | Recruitment pipeline v1: internal discovery (query patient database against protocol criteria); referral physician network |
+| **Sprint 27** | Patient-facing pre-screening: public-facing questionnaire for study-specific pre-screening; qualified leads into pipeline |
+| **Sprint 27** | CRO portal: CRO-facing read-only view of all their studies across all Meridian sites; live visit status; payment specs |
+| **Sprint 28** | eConsent module: digital ICF management; re-consent on amendment; 21 CFR Part 11 compliant |
+| **Sprint 29** | Mobile app v1 (React Native): coordinator schedule view; visit check-in/out; offline logging with sync |
+| **Sprint 30** | Mobile app v2: investigator app; push notifications; e-signature on mobile |
+| **Sprint 31** | Recruitment engine v2: digital intake forms; campaign lead capture; pipeline conversion; diversity monitoring |
+| **Sprint 32** | External registry integration: connect to 1–2 disease registries; opt-in patient discovery |
+| **Sprint 33** | AI model marketplace: sites enable/disable AI features per study; model performance dashboards |
+| **Sprint 34** | Protocol deviation AI: real-time detection of deviations; classification (minor vs. major); CRO notification workflow |
+| **Sprint 35** | Document management: version-controlled doc store per study; expiry tracking; e-signature via DocuSign API |
+| **Sprint 35** | Sponsor-facing dashboard: sponsor view of their study performance across all Meridian sites (read-only) |
+| **Sprint 36** | Platform hardening: SOC 2 Type II readiness audit; HIPAA BAA documentation; performance at 50-site scale |
+| **Sprint 36** | Market launch: public website live; 5+ sites onboarded; press / industry announcement |
+
+**Milestone M3.1:** First self-serve site onboarded without Pivot involvement — end Sprint 24
+**Milestone M3.2:** 5 sites live on Meridian — end Sprint 31
+**Milestone M3.3:** Mobile app in App Store and Google Play — end Sprint 30
+**Milestone M3.4:** SOC 2 Type II audit initiated — end Sprint 36
+**Milestone M3.5:** Public market launch — end Sprint 36
+
+---
+
+## 9. Compressed Milestone Map
+
+| Month | Milestone | Phase |
+|---|---|---|
+| **Month 1** | All Solimed data live in Meridian PostgreSQL | Phase 1 |
+| **Month 2.5** | First automated investigator spec sent via Meridian | Phase 1 |
+| **Month 3.5** | First CRO invoice auto-generated and tracked | Phase 1 |
+| **Month 5.5** | Coordinators live on Meridian for all visits | Phase 1 |
+| **Month 6** | Phase 1 complete — Layers 1–3 live at Solimed | Phase 1 |
+| **Month 7** | Communication Hub: first Solimed patient call through Meridian | Phase 2 |
+| **Month 9.5** | Second site live and processing real studies | Phase 2 |
+| **Month 10** | Dropout risk model live across both sites | Phase 2 |
+| **Month 11** | Penetration test passed; Phase 2 complete | Phase 2 |
+| **Month 12** | First self-serve site onboarded | Phase 3 |
+| **Month 15.5** | 5 sites live on Meridian | Phase 3 |
+| **Month 17** | Mobile app in App Store and Google Play | Phase 3 |
+| **Month 18** | Public market launch; SOC 2 initiated | Phase 3 |
+
+---
+
+## 10. Team Structure
 
 ### Core Product Team
 
@@ -334,7 +374,7 @@ The following decisions must be made and documented before a line of code is wri
 |---|---|---|---|---|
 | **Product Manager** | 1.0 | 1.0 | 1.0 | Product vision, roadmap, backlog, stakeholder alignment |
 | **Technical Lead / Architect** | 1.0 | 1.0 | 1.0 | Architecture decisions, code quality, ADRs, security |
-| **Full-Stack Developer** | 2.0 | 2.0 | 3.0 | API, frontend, database, integrations |
+| **Full-Stack Developer** | **2.0** | 2.0 | 3.0 | API, frontend, database, integrations — 2 from Sprint 1 is key compression lever |
 | **Data / BI Engineer** | 0.5 | 1.0 | 1.0 | Power BI, data pipeline, Layer 1 ingestion adapters |
 | **ML Engineer** | 0.5 | 1.0 | 1.0 | Layer 5 models: qualification, dropout risk, revenue prediction |
 | **Mobile Developer** | 0 | 0.5 | 1.0 | React Native iOS/Android app (Phase 3) |
@@ -342,39 +382,42 @@ The following decisions must be made and documented before a line of code is wri
 | **UX Designer** | 0.5 | 0.5 | 0.5 | Coordinator / investigator workflows, usability testing |
 | **DevOps / Infrastructure** | 0.25 | 0.5 | 0.5 | Azure, CI/CD, monitoring, compliance infrastructure |
 
+**Total FTE Phase 1:** ~6.25 | **Phase 2:** ~8.5 | **Phase 3:** ~10
+
 ### Solimed Team (Phase 1 Only)
 
 | Name | Role | Availability |
 |---|---|---|
-| Mladen Geng | Domain Expert / Knowledge Transfer | 2 days/week Sprints 1–2; then ad-hoc |
+| Mladen Geng | Domain Expert / Knowledge Transfer | 2 days/week Sprint 1; then ad-hoc |
 | Ivan Kruljac | Product Sponsor | Sprint reviews + strategic decisions |
 | Drew Domescik | CFO Advisor / Financial Features Sponsor | Sprint reviews + financial UAT |
-| 2–3 Coordinators | End User Testers | Sprint 12 UAT; periodic usability sessions |
-| Finance Role (TBD) | Billing Workflow SME | Sprint 5–8 billing UAT |
+| 2–3 Coordinators | End User Testers | Sprint 11 UAT; periodic usability sessions |
+| Finance Role (TBD) | Billing Workflow SME | Sprint 5–7 billing UAT |
 
 ---
 
-## 9. Risk Register
+## 11. Risk Register
 
 | # | Risk | Prob | Impact | Mitigation |
 |---|---|---|---|---|
-| R1 | Mladen unavailable — knowledge transfer incomplete | Med | Critical | Sprint 1 is 100% knowledge transfer; record all sessions; document everything before building |
-| R2 | Solimed data quality worse than expected | Med | High | Data audit in Phase 0; clean before migrating; do not migrate garbage |
-| R3 | Power Apps limitations block Layer 3 UI parity | Med | High | Power Apps UI stays live in parallel until Meridian UI is UAT-approved by coordinators |
-| R4 | Twilio HIPAA-eligible configuration complexity | Low | High | Engage Twilio enterprise team in Sprint 9; validate BAA before any patient calls go through |
-| R5 | EHR FHIR integration access denied by hospital IT | High | Med | FHIR stub in Layer 1 Sprint 4; EHR integration is Phase 2 — not on critical path for Phase 1 |
-| R6 | Claude API (call summaries) cost at scale | Med | Med | Token usage monitoring from Sprint 10; set per-call token budget; evaluate caching summaries |
-| R7 | ML model accuracy insufficient for clinical trust | Med | High | Models start rule-based (Sprint 15); ML layer (Sprint 16) is additive — rules are always the fallback |
-| R8 | Second site not identified by Month 10 | Med | High | Begin second site outreach at Month 6; Drew's network; Solimed CRO introductions |
-| R9 | Regulatory requirements in second country unknown | High | High | Regulatory scan begins Phase 1 Sprint 14; legal counsel engaged before Phase 2 |
-| R10 | Key Pivot team member departure | Low | High | Pair programming standard; all code reviewed; ADRs documented; no single-person knowledge silos |
-| R11 | Scope creep from Solimed (treating Meridian as custom dev) | High | Med | Clear distinction: Solimed is a platform customer, not a custom dev client; change requests evaluated against platform fit |
-| R12 | Competing platform (Crio, Florence) copies AI features | Med | Med | Speed of execution; network effects (more sites = better AI models); Solimed reference customer |
-| R13 | Data privacy breach (patient data) | Low | Critical | Security audit Phase 1 Sprint 18; pen test before Phase 2; HIPAA BAA all services; PII audit log from Sprint 11 |
+| R1 | Mladen unavailable — knowledge transfer incomplete | Med | Critical | Sprint 1 is 100% knowledge transfer; record all sessions; document before building |
+| R2 | Solimed data quality worse than expected | Med | High | Data audit Phase 0; clean before migrating; do not migrate garbage |
+| R3 | Power Apps limitations block Layer 3 UI parity | Med | High | Power Apps stays live in parallel until Meridian UI passes coordinator UAT (Sprint 11) |
+| R4 | Twilio HIPAA-eligible configuration complexity | Low | High | Engage Twilio enterprise in Sprint 13; validate BAA before any patient calls go through |
+| R5 | EHR FHIR integration access denied by hospital IT | High | Med | FHIR stub in Sprint 3; EHR integration is Phase 2 Sprint 22 — not on Phase 1 critical path |
+| R6 | Claude API cost at scale | Med | Med | Token monitoring from Sprint 14; per-call token budget; evaluate summary caching |
+| R7 | ML model accuracy insufficient for clinical trust | Med | High | Models start rule-based (Sprint 19); ML layer (Sprint 20) is additive — rules are always fallback |
+| R8 | Second site not identified by Month 6 | Med | High | Begin second site outreach at Month 4; Drew's network; Solimed CRO introductions |
+| R9 | Regulatory requirements in second country unknown | High | High | Regulatory scan starts Phase 1 Sprint 11; legal counsel engaged before Phase 2 |
+| R10 | Key Pivot team member departure | Low | High | Pair programming; all code reviewed; ADRs documented; no single-person knowledge silos |
+| R11 | Scope creep from Solimed (treating Meridian as custom dev) | High | Med | Clear distinction: Solimed is a platform customer, not a custom dev client; formal change control |
+| R12 | Competing platform (Crio, Florence) copies AI features | Med | Med | Speed of execution; network effects; Solimed reference customer with testimonial |
+| R13 | Patient data privacy breach | Low | Critical | Security audit Sprint 12; pen test before Phase 3; HIPAA BAA all services; PII audit log Sprint 10 |
+| R14 | Two Phase 2 tracks (Communication + Second Site) create coordination overhead | Med | Med | Dedicated sprint lead per track; shared standups; integration points clearly scheduled |
 
 ---
 
-## 10. Technology Decision Log
+## 12. Technology Decision Log
 
 All architecture decisions recorded as ADRs in the GitHub repository at `docs/adr/`. Decisions made in Phase 0 Week 2 and frozen for Phase 1.
 
@@ -398,25 +441,26 @@ All architecture decisions recorded as ADRs in the GitHub repository at `docs/ad
 
 ---
 
-## 11. Quality Gates
+## 13. Quality Gates
 
 Every phase has a quality gate that must pass before the next phase begins:
 
 ### Phase 1 → Phase 2 Gate
-- [ ] All 5 layers operational for Solimed in production
+- [ ] Layers 1–3 operational for Solimed in production
 - [ ] Zero critical or high security findings from Phase 1 audit
 - [ ] Coordinator NPS ≥ 40 (3+ coordinators surveyed)
 - [ ] Automated investigator spec sending running without errors for 2+ consecutive months
-- [ ] All Solimed data migrated; Power Apps decommissioned or in read-only mode
+- [ ] All Solimed data migrated; Power Apps in read-only mode
 - [ ] Ivan Kruljac written sign-off on Phase 1 completion
+- [ ] Second site candidate identified and in discovery
 
 ### Phase 2 → Phase 3 Gate
 - [ ] Second site live and processing real studies
+- [ ] Layer 4 Communication Hub live at Solimed with 50+ patient calls processed
 - [ ] Penetration test passed (no critical/high findings)
 - [ ] GDPR compliance review passed for both countries
-- [ ] Patient qualification engine scoring candidates at second site
-- [ ] Solimed site-specific dropouts predicted with >65% accuracy (30-day look-ahead)
-- [ ] Self-serve onboarding wizard complete and tested
+- [ ] Dropout model live with >60% precision on 30-day flag
+- [ ] Self-serve onboarding wizard tested end-to-end
 
 ### Phase 3 Launch Gate
 - [ ] 5 sites live on platform
@@ -427,7 +471,7 @@ Every phase has a quality gate that must pass before the next phase begins:
 
 ---
 
-## 12. Communication & Governance
+## 14. Communication & Governance
 
 ### Cadences
 
@@ -451,38 +495,38 @@ Every phase has a quality gate that must pass before the next phase begins:
 
 ---
 
-## 13. Success Metrics
+## 15. Success Metrics
 
 ### Phase 1 Metrics (Solimed as design partner)
 
 | Metric | Target | Measurement |
 |---|---|---|
 | Coordinator adoption | 100% of Solimed coordinators using Meridian daily | Login tracking |
-| Visit logging accuracy | Same or better than Power Apps (zero regression) | Comparison audit Sprint 12 |
+| Visit logging accuracy | Same or better than Power Apps (zero regression) | Comparison audit Sprint 11 |
 | Investigator spec automation | Monthly spec emails sent without manual intervention | Email send logs |
-| Backlog accuracy | Multi-arm inflation resolved; ≤5% variance from manual calculation | Finance reconciliation |
+| Backlog accuracy | Multi-arm inflation resolved; ≤5% variance from manual | Finance reconciliation |
 | Coordinator NPS | ≥40 | Post-Phase-1 survey |
-| AI call summary quality | Ivan + coordinator rating ≥4/5 on 20+ summaries | Manual rating survey |
-| Dropout prediction accuracy | >60% precision on 30-day dropout flag | Retrospective model evaluation |
+| Calendar compression | Phase 1 complete by Month 6 | Sprint velocity tracking |
 
-### Phase 2 Metrics (Second site)
+### Phase 2 Metrics
 
 | Metric | Target |
 |---|---|
-| Onboarding time for second site | <2 weeks from data import to first live visit |
+| Second site onboarding time | <2 weeks from data import to first live visit |
+| AI call summary quality | Ivan + coordinator rating ≥4/5 on 20+ summaries |
+| Patient dropout prediction accuracy | >60% precision on 30-day dropout flag |
 | Patient qualification engine | >70% of top-10 candidates pass formal screening |
-| EHR-sourced candidates | >20% of screening patients sourced via EHR integration |
 
 ### Phase 3 Metrics (Market)
 
 | Metric | Target |
 |---|---|
-| Sites live | 5+ by Month 24 |
-| ARR | €150K+ by Month 24 (ramp toward €600K Year 3 target) |
+| Sites live | 5+ by Month 18 |
+| ARR | €150K+ by Month 18 (ramp toward €600K Year 3 target) |
 | Self-serve onboarding | New site live in <48 hours without Pivot involvement |
 | Churn | <10% annual site churn |
 | NPS (all customers) | ≥50 |
 
 ---
 
-*This PM plan is a living document. It will be updated at the start of each phase based on what was learned in the prior phase. The sprint-level detail for Phase 2 and Phase 3 will be refined as Phase 1 progresses.*
+*This plan is Version 2.0 — compressed from the original 24-month plan (v1.0) to 18 months. The compression was achieved by: (1) running Phase 0 in parallel with Sprint 1, (2) scoping Phase 1 to Layers 1–3 MVP only, (3) adding a second developer from Sprint 1, and (4) running Layer 4/5 development in parallel with second-site onboarding in Phase 2. This plan will be updated at the start of each phase based on actual velocity and learnings from the prior phase.*
